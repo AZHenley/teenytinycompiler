@@ -1,0 +1,14 @@
+program ::= {statement '\n'}
+statement ::= "PRINT" expression
+            | "IF" comparison "THEN" {statement '\n'} "ENDIF"
+            | "WHILE" comparison "REPEAT" {statement '\n'} "ENDWHILE"
+            | "LABEL" ident
+            | "GOTO" ident
+            | "LET" ident = expression
+            | "INPUT" ident
+comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
+expression ::= term {( "-" | "+" ) term}
+term ::= unary {( "/" | "*" ) unary}
+unary ::= ["+" | "-"] primary
+primary ::= number | ident
+
