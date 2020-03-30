@@ -1,3 +1,4 @@
+import sys
 import enum
 
 # Lexer object keeps track of current position in the source code and produces each token.
@@ -22,10 +23,14 @@ class Lexer:
             return '\0'
         return self.source[self.curPos+1]
 
+    def abort(self, message):
+        print("Lexing error. " + message)
+        sys.exit()
+
     # Return the next token.
     def getToken(self):
         self.skipWhitespace()
-        self.skipComment
+        self.skipComment()
         token = None
 
         # Check the first character of this token to see if we can decide what it is.
@@ -66,10 +71,9 @@ class Lexer:
             if self.peek() == '=':
                 lastChar = self.curChar
                 self.nextChar()
-                token = Token(self.curChar + self.peek, TokenType.NOTEQ)
+                token = Token(lastChar + self.curChar, TokenType.NOTEQ)
             else:
-                # Error since ! in our language is only used for !=
-                pass
+                self.abort("Expected !=, got !" + self.peek())
         elif self.curChar.isdigit():
             # Leading character is a digit, so this must be a number.
             # Get all consecutive digits and decimal if there is one.
@@ -106,10 +110,11 @@ class Lexer:
             # Newline.
             token = Token('\n', TokenType.NEWLINE)
         elif self.curChar == '\0':
-            # EOF.
+             # EOF.
             token = Token('', TokenType.EOF)
         else:
-            # Unknown token! Error.
+            # Unknown token!
+            self.abort("Unknown token: " + self.curChar)
             pass
 
         self.nextChar()
@@ -157,7 +162,8 @@ class TokenType(enum.Enum):
     THEN = 107
     ENDIF = 108
     WHILE = 109
-    ENDWHILE = 110
+    REPEAT = 110
+    ENDWHILE = 111
     # Operators.
     EQ = 201  
     PLUS = 202
