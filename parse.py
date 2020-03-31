@@ -147,7 +147,12 @@ class Parser:
         # "INPUT" ident
         elif self.checkToken(TokenType.INPUT):
             self.nextToken()
-            # TODO: Check if ident exists in symbol table. If not, declare it.
+
+            #If variable doesn't already exist, declare it.
+            if self.curToken.text not in self.symbols:
+                self.symbols.add(self.curToken.text)
+                self.emitter.emitLine("float " + self.curToken.text + ";")
+
             self.emitter.emitLine("scanf(\"%" + "f\", &" + self.curToken.text + ");")
             self.match(TokenType.IDENT)
 
