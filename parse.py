@@ -6,6 +6,11 @@ class Parser:
     def __init__(self, lexer, emitter):
         self.lexer = lexer
         self.emitter = emitter
+
+        self.symbols = set()    # All variables we have declared so far.
+        self.labelsDeclared = set() # Keep track of all labels declared
+        self.labelsGotoed = set() # All labels goto'ed, so we know if they exist or not.
+
         self.curToken = None
         self.peekToken = None
         self.nextToken()
@@ -32,23 +37,34 @@ class Parser:
         # No need to worry about passing the EOF, lexer handles that.
 
     def abort(self, message):
-        print("Parsing error. " + message)
+        print("Error! " + message)
         sys.exit()
 
 
     # Production rules.
 
-    # program ::= {statement '\n'}
+    # program ::= {statement}
     def program(self):
         self.emitter.emitLine("#include <stdio.h>")
         self.emitter.emitLine("int main(void){")
         
+        # Since some newlines are required in our grammar, need to skip the excess.
+        while self.checkToken(TokenType.NEWLINE):
+            self.nextToken()
+
+        # Parse all the statements in the program.
         while not self.checkToken(TokenType.EOF):
             self.statement()
-            self.match(TokenType.NEWLINE)
 
+        # Wrap things up.
         self.emitter.emitLine("return 0;")
         self.emitter.emitLine("}")
+
+        # Check that each label referenced in a GOTO is declared.
+        for label in self.labelsGotoed:
+            if label not in self.labelsDeclared:
+                self.abort("Attempting to GOTO to undeclared label: " + label)
+
 
     # One of the following statements...
     def statement(self):
@@ -57,83 +73,150 @@ class Parser:
         # "PRINT" expression
         if self.checkToken(TokenType.PRINT):
             self.nextToken()
+            self.emitter.emit("printf(\"%" + ".2f\", (float)(")
+
             self.expression()
+            self.emitter.emitLine("));")
+
         # "IF" comparison "THEN" block "ENDIF"
         elif self.checkToken(TokenType.IF):
             self.nextToken()
+            self.emitter.emit("if(")
             self.comparison()
+
             self.match(TokenType.THEN)
+            self.emitter.emitLine("){")
+
             while not self.checkToken(TokenType.ENDIF):
                 self.statement()
                 self.match(TokenType.NEWLINE)
+
             self.match(TokenType.ENDIF)
+            self.emitter.emitLine("}")
+
         # "WHILE" comparison "REPEAT" block "ENDWHILE"
         elif self.checkToken(TokenType.WHILE):
             self.nextToken()
+            self.emitter.emit("while(")
             self.comparison()
+
             self.match(TokenType.REPEAT)
+            self.emitter.emit("){")
+
             while not self.checkToken(TokenType.ENDWHILE):
                 self.statement()
                 self.match(TokenType.NEWLINE)
+
             self.match(TokenType.ENDWHILE)
+            self.emitter.emitLine("}")
+
         # "LABEL" ident
         elif self.checkToken(TokenType.LABEL):
             self.nextToken()
+
+            # Make sure this label doesn't already exist.
+            if self.curToken.text in self.labelsDeclared:
+                self.abort("Label already exists: " + self.curToken.text)
+            self.labelsDeclared.add(self.curToken.text)
+
+            self.emitter.emitLine(self.curToken.text + ":")
             self.match(TokenType.IDENT)
+
         # "GOTO" ident
         elif self.checkToken(TokenType.GOTO):
             self.nextToken()
+            self.labelsGotoed.add(self.curToken.text)
+            self.emitter.emitLine("goto " + self.curToken.text + ";")
             self.match(TokenType.IDENT)
+
         # "LET" ident = expression
         elif self.checkToken(TokenType.LET):
             self.nextToken()
+
+            #  Check if ident exists in symbol table. If not, declare it.
+            if self.curToken.text not in self.symbols:
+                self.symbols.add(self.curToken.text)
+                self.emitter.emit("float ")
+
+            self.emitter.emit(self.curToken.text + " = ")
             self.match(TokenType.IDENT)
+            self.match(TokenType.EQ)
+            
+            self.expression()
+            self.emitter.emitLine(";")
         # "INPUT" ident
         elif self.checkToken(TokenType.INPUT):
             self.nextToken()
+            # TODO: Check if ident exists in symbol table. If not, declare it.
+            self.emitter.emitLine("scanf(\"%" + "f\", &" + self.curToken.text + ");")
             self.match(TokenType.IDENT)
+
         # This is not a valid statement. Error!
         else:
             self.abort("Invalid statement at " + self.curToken.text)
+
+        # All statements require at least one newline.
+        self.match(TokenType.NEWLINE)
+        # But we will allow extra newlines too, of course.
+        while self.checkToken(TokenType.NEWLINE):
+            self.nextToken()
+
 
     # comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
     def comparison(self):
         self.expression()
         # Must be at least one comparison operator and another expression.
         if self.checkToken(TokenType.GT) or self.checkToken(TokenType.GTEQ) or self.checkToken(TokenType.LT) or self.checkToken(TokenType.LTEQ):
+            self.emitter.emit(self.curToken.text)
             self.nextToken()
             self.expression()
         # Can have 0 or more comparison operator and expressions.
         while self.checkToken(TokenType.GT) or self.checkToken(TokenType.GTEQ) or self.checkToken(TokenType.LT) or self.checkToken(TokenType.LTEQ):
+            self.emitter.emit(self.curToken.text)
             self.nextToken()
             self.expression()
+
 
     # expression ::= term {( "-" | "+" ) term}
     def expression(self):
         self.term()
         # Can have 0 or more +/- and expressions.
         while self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
+            self.emitter.emit(self.curToken.text)
             self.nextToken()
             self.term()
+
 
     # term ::= unary {( "/" | "*" ) unary}
     def term(self):
         self.unary()
         # Can have 0 or more *// and expressions.
         while self.checkToken(TokenType.ASTERISK) or self.checkToken(TokenType.SLASH):
+            self.emitter.emit(self.curToken.text)
             self.nextToken()
             self.unary()
+
 
     # unary ::= ["+" | "-"] primary
     def unary(self):
         # Optional unary +/-
         if self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
+            self.emitter.emit(self.curToken.text)
             self.nextToken()        
         self.primary()
+        
 
     # primary ::= number | ident
     def primary(self):
-        if self.checkToken(TokenType.NUMBER) or self.checkToken(TokenType.IDENT):
+        if self.checkToken(TokenType.NUMBER): 
+            self.emitter.emit(self.curToken.text)
+            self.nextToken()
+        elif self.checkToken(TokenType.IDENT):
+            # Ensure the variable already exists.
+            if self.curToken.text not in self.symbols:
+                self.abort("Referencing variable before assignment: " + self.curToken.text)
+
+            self.emitter.emit(self.curToken.text)
             self.nextToken()
         else:
             # Error!
