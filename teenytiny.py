@@ -1,57 +1,25 @@
-import enum
+from lex import *
+from emit import *
+from parse import *
+import sys
 
 def main():
-    # Read.
-    # Lex.
-    # Parse.
-    # Generate.
-    # Write.
-    pass
+    print("Teeny Tiny Compiler")
 
-def abort():
-    pass
+    if len(sys.argv) != 2:
+        print("Error: Compiler needs source file as argument.")
+        return
+    with open(sys.argv[1], 'r') as inputFile:
+        input = inputFile.read()
+    # input = "LET a = 5 \n LET b = a * 3 \n PRINT a + b" # Testing
 
+    # Initialize the lexer, emitter, and parser.
+    lexer = Lexer(input)
+    emitter = Emitter("out.c")
+    parser = Parser(lexer, emitter)
 
-# Lexer.
+    parser.program() # Start the parser.
+    emitter.writeFile() # Write the output to file.
+    print("Compiling completed.")
 
-class Lexer:
-    def currentTokenIs(self, token):
-        pass
-
-    def consume(self, token):
-        pass
-
-
-# Token.
-class Token(enum.Enum):
-    NUMBER = 1
-    IDENT = 2
-    # Keywords.
-    LABEL = 3
-    GOTO = 4
-    PRINT = 5
-    INPUT = 6
-    LET = 7
-    IF = 8
-    THEN = 9
-    ENDIF = 10
-    WHILE = 11
-    ENDWHILE = 12
-    # Operators.
-    OP_EQ = 13  
-    OP_PLUS = 14
-    OP_MINUS = 15
-    OP_MULT = 16
-    OP_DIV = 17
-    OP_EQEQ = 18
-    OP_NOTEQ = 19
-    OP_LT = 20
-    OP_LTEQ = 21
-    OP_GT = 22
-    OP_GTEQ = 23
-
-class Emitter():
-    pass
-
-
-
+main()
