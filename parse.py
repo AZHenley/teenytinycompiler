@@ -76,7 +76,7 @@ class Parser:
         # "PRINT" expression
         if self.checkToken(TokenType.PRINT):
             self.nextToken()
-            self.emitter.emit("printf(\"%" + ".2f\", (float)(")
+            self.emitter.emit("printf(\"%" + ".2f\\n\", (float)(")
 
             self.expression()
             self.emitter.emitLine("));")
@@ -158,7 +158,12 @@ class Parser:
                 self.symbols.add(self.curToken.text)
                 self.emitter.emitLine("float " + self.curToken.text + ";")
 
-            self.emitter.emitLine("scanf(\"%" + "f\", &" + self.curToken.text + ");")
+            # Emit scanf but also validate the input. If invalid, set the variable to 0 and clear the input.
+            self.emitter.emitLine("if(0 == scanf(\"%" + "f\", &" + self.curToken.text + ")) {")
+            self.emitter.emitLine(self.curToken.text + " = 0;")
+            self.emitter.emit("scanf(\"%")
+            self.emitter.emitLine("*s\");")
+            self.emitter.emitLine("}")
             self.match(TokenType.IDENT)
 
         # This is not a valid statement. Error!
