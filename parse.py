@@ -37,8 +37,7 @@ class Parser:
         # No need to worry about passing the EOF, lexer handles that.
 
     def abort(self, message):
-        print("Error! " + message)
-        sys.exit()
+        sys.exit("Error! " + message)
 
 
     # Production rules.

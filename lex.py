@@ -24,8 +24,7 @@ class Lexer:
         return self.source[self.curPos+1]
 
     def abort(self, message):
-        print("Lexing error. " + message)
-        sys.exit()
+        sys.exit("Lexing error. " + message)
 
     # Return the next token.
     def getToken(self):

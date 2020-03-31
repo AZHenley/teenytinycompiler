@@ -7,8 +7,7 @@ def main():
     print("Teeny Tiny Compiler")
 
     if len(sys.argv) != 2:
-        print("Error: Compiler needs source file as argument.")
-        return
+        sys.exit("Error: Compiler needs source file as argument.")
     with open(sys.argv[1], 'r') as inputFile:
         input = inputFile.read()
     # input = "LET a = 5 \n LET b = a * 3 \n PRINT a + b" # Testing
