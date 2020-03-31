@@ -85,11 +85,12 @@ class Parser:
             self.comparison()
 
             self.match(TokenType.THEN)
+            self.match(TokenType.NEWLINE)
             self.emitter.emitLine("){")
 
+            # Zero or more statements in the body.
             while not self.checkToken(TokenType.ENDIF):
                 self.statement()
-                self.match(TokenType.NEWLINE)
 
             self.match(TokenType.ENDIF)
             self.emitter.emitLine("}")
@@ -101,11 +102,12 @@ class Parser:
             self.comparison()
 
             self.match(TokenType.REPEAT)
+            self.match(TokenType.NEWLINE)
             self.emitter.emit("){")
 
+            # Zero or more statements in the loop body.
             while not self.checkToken(TokenType.ENDWHILE):
                 self.statement()
-                self.match(TokenType.NEWLINE)
 
             self.match(TokenType.ENDWHILE)
             self.emitter.emitLine("}")
@@ -158,7 +160,7 @@ class Parser:
 
         # This is not a valid statement. Error!
         else:
-            self.abort("Invalid statement at " + self.curToken.text)
+            self.abort("Invalid statement at " + self.curToken.text + " (" + self.curToken.kind.name + ")")
 
         # All statements require at least one newline.
         self.match(TokenType.NEWLINE)
@@ -209,7 +211,7 @@ class Parser:
             self.emitter.emit(self.curToken.text)
             self.nextToken()        
         self.primary()
-        
+
 
     # primary ::= number | ident
     def primary(self):

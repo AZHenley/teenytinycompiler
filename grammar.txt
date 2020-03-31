@@ -1,7 +1,7 @@
 program ::= {statement}
 statement ::= "PRINT" expression '\n'
-            | "IF" comparison "THEN" {statement '\n'} "ENDIF" '\n'
-            | "WHILE" comparison "REPEAT" {statement '\n'} "ENDWHILE" '\n'
+            | "IF" comparison "THEN" '\n' {statement '\n'} "ENDIF" '\n'
+            | "WHILE" comparison "REPEAT" '\n' {statement '\n'} "ENDWHILE" '\n'
             | "LABEL" ident '\n'
             | "GOTO" ident '\n'
             | "LET" ident = expression '\n'
