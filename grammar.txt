@@ -1,14 +1,15 @@
 program ::= {statement}
-statement ::= "PRINT" expression '\n'
-            | "IF" comparison "THEN" '\n' {statement '\n'} "ENDIF" '\n'
-            | "WHILE" comparison "REPEAT" '\n' {statement '\n'} "ENDWHILE" '\n'
-            | "LABEL" ident '\n'
-            | "GOTO" ident '\n'
-            | "LET" ident = expression '\n'
-            | "INPUT" ident '\n'
+statement ::= "PRINT" expression nl
+            | "IF" comparison "THEN" nl {statement nl} "ENDIF" nl
+            | "WHILE" comparison "REPEAT" nl {statement nl} "ENDWHILE" nl
+            | "LABEL" ident nl
+            | "GOTO" ident nl
+            | "LET" ident = expression nl
+            | "INPUT" ident nl
 comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
 expression ::= term {( "-" | "+" ) term}
 term ::= unary {( "/" | "*" ) unary}
 unary ::= ["+" | "-"] primary
 primary ::= number | ident
+nl ::= '\n'+
 

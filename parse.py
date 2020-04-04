@@ -88,7 +88,7 @@ class Parser:
             self.comparison()
 
             self.match(TokenType.THEN)
-            self.match(TokenType.NEWLINE)
+            self.nl()
             self.emitter.emitLine("){")
 
             # Zero or more statements in the body.
@@ -105,7 +105,7 @@ class Parser:
             self.comparison()
 
             self.match(TokenType.REPEAT)
-            self.match(TokenType.NEWLINE)
+            self.nl()
             self.emitter.emit("){")
 
             # Zero or more statements in the loop body.
@@ -170,11 +170,8 @@ class Parser:
         else:
             self.abort("Invalid statement at " + self.curToken.text + " (" + self.curToken.kind.name + ")")
 
-        # All statements require at least one newline.
-        self.match(TokenType.NEWLINE)
-        # But we will allow extra newlines too, of course.
-        while self.checkToken(TokenType.NEWLINE):
-            self.nextToken()
+        # Newline.
+        self.nl()
 
 
     # comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
@@ -236,3 +233,11 @@ class Parser:
         else:
             # Error!
             self.abort("Unexpected token at " + self.curToken.text)
+
+    # nl ::= '\n'+
+    def nl(self):
+        # Require at least one newline.
+        self.match(TokenType.NEWLINE)
+        # But we will allow extra newlines too, of course.
+        while self.checkToken(TokenType.NEWLINE):
+            self.nextToken()
