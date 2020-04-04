@@ -73,6 +73,21 @@ class Lexer:
                 token = Token(lastChar + self.curChar, TokenType.NOTEQ)
             else:
                 self.abort("Expected !=, got !" + self.peek())
+
+        elif self.curChar == '\"':
+            # Get all characters between quotations. No escape characters allowed.
+            self.nextChar()
+            startPos = self.curPos
+
+            while self.curChar != '\"':
+                # Don't allow special characters in the string.
+                if self.curChar == '\r' or self.curChar == '\n' or self.curChar == '\t':
+                    self.abort("Illegal character in string.")
+                self.nextChar()
+
+            tokText = self.source[startPos : self.curPos] # Get the substring.
+            token = Token(tokText, TokenType.STRING)
+
         elif self.curChar.isdigit():
             # Leading character is a digit, so this must be a number.
             # Get all consecutive digits and decimal if there is one.
@@ -151,6 +166,7 @@ class TokenType(enum.Enum):
     NEWLINE = 0
     NUMBER = 1
     IDENT = 2
+    STRING = 3
     # Keywords.
     LABEL = 101
     GOTO = 102
