@@ -48,8 +48,8 @@ class Parser:
 
     # program ::= {statement}
     def program(self):
-        self.emitter.emitLine("#include <stdio.h>")
-        self.emitter.emitLine("int main(void){")
+        self.emitter.headerLine("#include <stdio.h>")
+        self.emitter.headerLine("int main(void){")
         
         # Since some newlines are required in our grammar, need to skip the excess.
         while self.checkToken(TokenType.NEWLINE):
@@ -148,7 +148,7 @@ class Parser:
             #  Check if ident exists in symbol table. If not, declare it.
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
-                self.emitter.emit("float ")
+                self.emitter.headerLine("float " + self.curToken.text + ";")
 
             self.emitter.emit(self.curToken.text + " = ")
             self.match(TokenType.IDENT)
@@ -156,6 +156,7 @@ class Parser:
             
             self.expression()
             self.emitter.emitLine(";")
+
         # "INPUT" ident
         elif self.checkToken(TokenType.INPUT):
             self.nextToken()
@@ -163,7 +164,7 @@ class Parser:
             #If variable doesn't already exist, declare it.
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
-                self.emitter.emitLine("float " + self.curToken.text + ";")
+                self.emitter.headerLine("float " + self.curToken.text + ";")
 
             # Emit scanf but also validate the input. If invalid, set the variable to 0 and clear the input.
             self.emitter.emitLine("if(0 == scanf(\"%" + "f\", &" + self.curToken.text + ")) {")
