@@ -23,6 +23,7 @@ class Lexer:
             return '\0'
         return self.source[self.curPos+1]
 
+    # Invalid token found, print error message and exit.
     def abort(self, message):
         sys.exit("Lexing error. " + message)
 
@@ -33,7 +34,7 @@ class Lexer:
         token = None
 
         # Check the first character of this token to see if we can decide what it is.
-        # If it is a multiple character operator (e.g., !=), number, identifier, or keyword then we will process the rest.
+        # If it is a multiple character operator (e.g., !=), number, identifier, or keyword, then we will process the rest.
         if self.curChar == '+':
             token = Token(self.curChar, TokenType.PLUS)
         elif self.curChar == '-':
@@ -75,13 +76,14 @@ class Lexer:
                 self.abort("Expected !=, got !" + self.peek())
 
         elif self.curChar == '\"':
-            # Get all characters between quotations. No escape characters allowed.
+            # Get characters between quotations.
             self.nextChar()
             startPos = self.curPos
 
             while self.curChar != '\"':
-                # Don't allow special characters in the string.
-                if self.curChar == '\r' or self.curChar == '\n' or self.curChar == '\t':
+                # Don't allow special characters in the string. No escape characters, newlines, tabs, or %.
+                # We will be using C's printf on this string.
+                if self.curChar == '\r' or self.curChar == '\n' or self.curChar == '\t' or self.curChar == '\\' or self.curChar == '%':
                     self.abort("Illegal character in string.")
                 self.nextChar()
 
@@ -100,7 +102,7 @@ class Lexer:
                 # Must have at least one digit after decimal.
                 if not self.peek().isdigit(): 
                     # Error!
-                    pass
+                    self.abort("Illegal character in number.")
                 while self.peek().isdigit():
                     self.nextChar()
 
@@ -129,7 +131,6 @@ class Lexer:
         else:
             # Unknown token!
             self.abort("Unknown token: " + self.curChar)
-            pass
 
         self.nextChar()
         return token
