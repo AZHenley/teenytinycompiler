@@ -4,6 +4,8 @@ This is a small compiler to demonstrate how compilers work to my students. It co
 
 Read the tutorial: [Let's make a Teeny Tiny compiler, part 1](http://web.eecs.utk.edu/~azh/blog/teenytinycompiler1.html)
 
+The code is split into folders (part1, part2, part3) that correspond with the complete code from the parts of the tutorial. See part3 for the finished compiler.
+
 It supports:
   - Numerical variables
   - Basic arithmetic
