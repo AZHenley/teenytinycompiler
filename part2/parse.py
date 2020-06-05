@@ -149,7 +149,7 @@ class Parser:
             print("STATEMENT-INPUT")
             self.nextToken()
 
-            #If variable doesn't already exist, declare it.
+            # If variable doesn't already exist, declare it.
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
 
@@ -211,7 +211,7 @@ class Parser:
 
     # primary ::= number | ident
     def primary(self):
-        print("PRIMARY")
+        print("PRIMARY (" + self.curToken.text + ")")
 
         if self.checkToken(TokenType.NUMBER): 
             self.nextToken()
