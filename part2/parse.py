@@ -40,13 +40,15 @@ class Parser:
         return self.checkToken(TokenType.GT) or self.checkToken(TokenType.GTEQ) or self.checkToken(TokenType.LT) or self.checkToken(TokenType.LTEQ) or self.checkToken(TokenType.EQEQ) or self.checkToken(TokenType.NOTEQ)
 
     def abort(self, message):
-        sys.exit("Error! " + message)
+        sys.exit("Error. " + message)
 
 
     # Production rules.
 
     # program ::= {statement}
     def program(self):
+        print("PROGRAM")
+
         # Since some newlines are required in our grammar, need to skip the excess.
         while self.checkToken(TokenType.NEWLINE):
             self.nextToken()
@@ -67,6 +69,7 @@ class Parser:
 
         # "PRINT" (expression | string)
         if self.checkToken(TokenType.PRINT):
+            print("STATEMENT-PRINT")
             self.nextToken()
 
             if self.checkToken(TokenType.STRING):
@@ -77,8 +80,9 @@ class Parser:
                 # Expect an expression.
                 self.expression()
 
-        # "IF" comparison "THEN" block "ENDIF"
+        # "IF" comparison "THEN" {statement} "ENDIF"
         elif self.checkToken(TokenType.IF):
+            print("STATEMENT-IF")
             self.nextToken()
             self.comparison()
 
@@ -91,8 +95,9 @@ class Parser:
 
             self.match(TokenType.ENDIF)
 
-        # "WHILE" comparison "REPEAT" block "ENDWHILE"
+        # "WHILE" comparison "REPEAT" {statement} "ENDWHILE"
         elif self.checkToken(TokenType.WHILE):
+            print("STATEMENT-WHILE")
             self.nextToken()
             self.comparison()
 
@@ -107,6 +112,7 @@ class Parser:
 
         # "LABEL" ident
         elif self.checkToken(TokenType.LABEL):
+            print("STATEMENT-LABEL")
             self.nextToken()
 
             # Make sure this label doesn't already exist.
@@ -118,12 +124,15 @@ class Parser:
 
         # "GOTO" ident
         elif self.checkToken(TokenType.GOTO):
+            print("STATEMENT-GOTO")
             self.nextToken()
             self.labelsGotoed.add(self.curToken.text)
             self.match(TokenType.IDENT)
 
-        # "LET" ident = expression
+        # "LET" ident "=" expression
         elif self.checkToken(TokenType.LET):
+        elif self.checkToken(TokenType.GOTO):
+            print("STATEMENT-LET")
             self.nextToken()
 
             #  Check if ident exists in symbol table. If not, declare it.
@@ -137,6 +146,7 @@ class Parser:
 
         # "INPUT" ident
         elif self.checkToken(TokenType.INPUT):
+            print("STATEMENT-INPUT")
             self.nextToken()
 
             #If variable doesn't already exist, declare it.
@@ -155,6 +165,8 @@ class Parser:
 
     # comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
     def comparison(self):
+        print("COMPARISON")
+
         self.expression()
         # Must be at least one comparison operator and another expression.
         if self.isComparisonOperator():
@@ -168,6 +180,8 @@ class Parser:
 
     # expression ::= term {( "-" | "+" ) term}
     def expression(self):
+        print("EXPRESSION")
+
         self.term()
         # Can have 0 or more +/- and expressions.
         while self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
@@ -177,6 +191,8 @@ class Parser:
 
     # term ::= unary {( "/" | "*" ) unary}
     def term(self):
+        print("TERM")
+
         self.unary()
         # Can have 0 or more *// and expressions.
         while self.checkToken(TokenType.ASTERISK) or self.checkToken(TokenType.SLASH):
@@ -186,6 +202,7 @@ class Parser:
 
     # unary ::= ["+" | "-"] primary
     def unary(self):
+        print("UNARY")
         # Optional unary +/-
         if self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
             self.nextToken()        
@@ -194,6 +211,8 @@ class Parser:
 
     # primary ::= number | ident
     def primary(self):
+        print("PRIMARY")
+
         if self.checkToken(TokenType.NUMBER): 
             self.nextToken()
         elif self.checkToken(TokenType.IDENT):
@@ -208,6 +227,8 @@ class Parser:
 
     # nl ::= '\n'+
     def nl(self):
+        print("NEWLINE")
+
         # Require at least one newline.
         self.match(TokenType.NEWLINE)
         # But we will allow extra newlines too, of course.
