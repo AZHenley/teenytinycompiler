@@ -3,7 +3,12 @@ from parse import *
 import sys
 
 def main():
-    input = "LET a = 5 \n LET b = a * 3 \n PRINT a + b" # Testing
+    print("Teeny Tiny Compiler")
+
+    if len(sys.argv) != 2:
+        sys.exit("Error: Compiler needs source file as argument.")
+    with open(sys.argv[1], 'r') as inputFile:
+        input = inputFile.read()
 
     # Initialize the lexer and parser.
     lexer = Lexer(input)
