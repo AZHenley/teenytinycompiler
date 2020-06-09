@@ -172,6 +172,9 @@ class Parser:
         if self.isComparisonOperator():
             self.nextToken()
             self.expression()
+        else:
+            self.abort("Expected comparison operator at: " + self.curToken.text)
+
         # Can have 0 or more comparison operator and expressions.
         while self.isComparisonOperator():
             self.nextToken()
