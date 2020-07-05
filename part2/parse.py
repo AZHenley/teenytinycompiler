@@ -131,7 +131,6 @@ class Parser:
 
         # "LET" ident "=" expression
         elif self.checkToken(TokenType.LET):
-        elif self.checkToken(TokenType.GOTO):
             print("STATEMENT-LET")
             self.nextToken()
 
