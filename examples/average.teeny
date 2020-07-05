@@ -15,5 +15,5 @@ WHILE b < a REPEAT
     LET b = b + 1
 ENDWHILE
 
-PRINT "GPA: "
+PRINT "Average: "
 PRINT s / a

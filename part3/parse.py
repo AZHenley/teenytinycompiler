@@ -113,7 +113,7 @@ class Parser:
 
             self.match(TokenType.REPEAT)
             self.nl()
-            self.emitter.emit("){")
+            self.emitter.emitLine("){")
 
             # Zero or more statements in the loop body.
             while not self.checkToken(TokenType.ENDWHILE):
@@ -161,7 +161,7 @@ class Parser:
         elif self.checkToken(TokenType.INPUT):
             self.nextToken()
 
-            #If variable doesn't already exist, declare it.
+            # If variable doesn't already exist, declare it.
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
                 self.emitter.headerLine("float " + self.curToken.text + ";")
