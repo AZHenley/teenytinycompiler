@@ -1,8 +1,8 @@
 from lex import *
 
 def main():
-    input = "IF+-123 foo*THEN/"
-    lexer = Lexer(input)
+    source = "IF+-123 foo*THEN/"
+    lexer = Lexer(source)
 
     token = lexer.getToken()
     while token.kind != TokenType.EOF:
