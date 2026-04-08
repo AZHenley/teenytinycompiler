@@ -1,18 +1,3 @@
-_Sponsored by_ 
-​<table>
-    <tr> 
-        <td>  
-            <a href="https://www.recall.ai/careers?ashby_jid=7b02811e-bc91-4ef2-925d-f56a5acac13b&utm_source=github&utm_medium=sponsorship&utm_campaign=teenytinycompiler"
-                title="recall.ai">
-                <img height="60" src="https://recallaidev-public.s3.amazonaws.com/gh/logo-lg.jpg" />
-            </a><br>
-            <blockquote><i>Processing over 3TB/s of video at peak load, <a
-                        href="https://www.recall.ai/careers?ashby_jid=7b02811e-bc91-4ef2-925d-f56a5acac13b&utm_source=github&utm_medium=sponsorship&utm_campaign=teenytinycompiler">now
-                        hiring in SF</a></i></blockquote>
-        </td>
-    </tr>
-</table>
-
 # teenytinycompiler
 
 This is a small compiler to demonstrate how compilers work to my students. It compiles our own dialect of BASIC to C, while being written in Python.
